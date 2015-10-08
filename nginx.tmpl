@@ -93,7 +93,7 @@ upstream {{ $host }} {
 
 	{{ if $.Env.HEALTH_CHECK }}
   	    check interval=5000 rise=1 fall=3 timeout=4000 type=http;
-            check_http_send "HEAD {{ $container.Env.HEALTH_CHECK }} HTTP/1.0\r\n\r\n";
+            check_http_send "HEAD {{ $.Env.HEALTH_CHECK }} HTTP/1.0\r\n\r\n";
             check_http_expect_alive http_2xx;
         {{ end }}
 }
