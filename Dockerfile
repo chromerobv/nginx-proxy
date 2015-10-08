@@ -1,5 +1,5 @@
-FROM nginx:1.9.5
-MAINTAINER Jason Wilder jwilder@litl.com
+FROM chromerobv/nginx
+MAINTAINER robv <phynias@gmail.com>
 
 # Install wget and install/updates certificates
 RUN apt-get update \
