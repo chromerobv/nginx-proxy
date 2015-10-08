@@ -79,6 +79,14 @@ server {
 upstream {{ $host }} {
 {{ range $container := $containers }}
 	{{ $addrLen := len $container.Addresses }}
+
+	{{ if $container.Env.HEALTH_CHECK and !$set }}
+  	    check interval=5000 rise=1 fall=3 timeout=4000 type=http;
+            check_http_send "HEAD {{ $host.Env.HEALTH_CHECK }} HTTP/1.0\r\n\r\n";
+            check_http_expect_alive http_2xx;
+	    {{ $set := 1 }}
+        {{ end }}
+
 	{{/* If only 1 port exposed, use that */}}
 	{{ if eq $addrLen 1 }}
 		{{ $address := index $container.Addresses 0 }}
@@ -90,12 +98,6 @@ upstream {{ $host }} {
 		{{ template "upstream" (dict "Container" $container "Address" $address) }}
 	{{ end }}
 {{ end }}
-
-	{{ if $host.Env.HEALTH_CHECK }}
-  	    check interval=5000 rise=1 fall=3 timeout=4000 type=http;
-            check_http_send "HEAD {{ $host.Env.HEALTH_CHECK }} HTTP/1.0\r\n\r\n";
-            check_http_expect_alive http_2xx;
-        {{ end }}
 }
 
 {{ $default_host := or ($.Env.DEFAULT_HOST) "" }}
