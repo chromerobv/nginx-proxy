@@ -77,16 +77,15 @@ server {
 {{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
 
 upstream {{ $host }} {
+{{ $check_set := "0" }}
 {{ range $container := $containers }}
 	{{ $addrLen := len $container.Addresses }}
-
 	{{ if $container.Env.HEALTH_CHECK and ne $check_set "1" }}
   	    check interval=5000 rise=1 fall=3 timeout=4000 type=http;
             check_http_send "HEAD {{ $host.Env.HEALTH_CHECK }} HTTP/1.0\r\n\r\n";
             check_http_expect_alive http_2xx;
-	    {{ $set := "1" }}
+	    {{ $check_set := "1" }}
         {{ end }}
-
 	{{/* If only 1 port exposed, use that */}}
 	{{ if eq $addrLen 1 }}
 		{{ $address := index $container.Addresses 0 }}
