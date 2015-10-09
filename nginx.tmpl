@@ -80,7 +80,7 @@ upstream {{ $host }} {
 {{ range $index, $container := $containers }}
 	{{ $check := coalesce $container.Env.HEALTH_CHECK false }}
 	{{ if and (eq $index 0) ($check) }}
-  	    check interval=5000 rise=1 fall=2 timeout=5000 type=http;
+  	    check interval=5000 rise=1 fall=2 timeout=4000 type=http;
             check_http_send "HEAD {{ coalesce $container.Env.HEALTH_CHECK "/" }} HTTP/1.0\r\n\r\n";
             check_http_expect_alive http_2xx;
         {{ end }}
